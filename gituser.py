@@ -12,17 +12,22 @@ reload(sys)
 
 sys.setdefaultencoding('utf-8')
 
-userBaseUrl = 'http://giturl/api/v3/users/';
-token = '?private_token=ouradmintoken';
+userBaseUrl = 'http://gitlab.url/api/v3/users/';
+token = '?private_token=gitlabadmintoken';
 
-for gitUid in range(1, 80) :
+userInfoDic = {};
+with open('userinfo.txt', 'r') as f:
+    for line in f:
+        splitLine = line.split(",");
+        userInfoDic[splitLine[0]] = splitLine[1];
+
+for gitUid, username in userInfoDic.iteritems() :
     userSshKeysUrl = userBaseUrl + str(gitUid) + "/keys" + token
     userSshCont = requests.get(userSshKeysUrl).content;
     userSshJson = json.loads(userSshCont);
 
     if type(userSshJson) is types.DictType :
-        #print("***************" + str(resJson))
-        pass;
+        print("No git user info : " + gitUid + " : " + username)
     else :
         if len(userSshJson) != 0 :
             userInfoKeysUrl = userBaseUrl + str(gitUid) + token;
@@ -42,4 +47,5 @@ for gitUid in range(1, 80) :
                 sshKey = sshObj[u'key'];
                 f.write(str(sshKey));
             f.close();
-
+        else :
+            print("No git keys info : " + gitUid + " : " + username)
